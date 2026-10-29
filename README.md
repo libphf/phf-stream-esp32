@@ -8,7 +8,7 @@ Streams live uncompressed RGB video from the ESP32 micro-controller to modern we
 
 ## 🚀 Features
 
-- **100% Standalone & In-Chip ("Totalmente Contido")**: Serves the entire web dashboard (HTML, CSS, JS, WASM) and the live WebSocket stream directly from the ESP32-CAM.
+- **100% Standalone & In-Chip**: Serves the entire web dashboard (HTML, CSS, JS, WASM) and the live WebSocket stream directly from the ESP32-CAM.
 - **Bit-Exact Lossless Video**: Full mathematical preservation of the pixel buffer without chroma subsampling or macroblock artifacts.
 - **Microcontroller-Optimized Memory Architecture**:
   - Automatically routes codec allocations to the 4MB external PSRAM (`MALLOC_CAP_SPIRAM`), preventing SRAM exhaustion.
@@ -34,7 +34,7 @@ Real-world benchmarks recorded on an AI-Thinker ESP32-CAM (240 MHz Xtensa LX6):
 | **QVGA (320x240)** | 230.4 KB | ~78 - 86 KB | ~600 - 650 ms | ~1.5 - 2.5 ms | ~1.6 FPS |
 | **QQVGA (160x120)** | 57.6 KB | ~20 - 23 KB | ~360 - 380 ms | ~0.5 - 0.9 ms | ~3.0 FPS |
 
-*Note: For higher framerates (30-60 FPS at 720p/1080p), see [`phf-stream-pi`](../phf-stream-pi/) for Raspberry Pi CSI/USB, or [`phf-stream-webcam`](../phf-stream-webcam/) for PC webcams.*
+*Note: For higher framerates (30-60 FPS at 720p/1080p), see [`phf-stream-pi`](https://github.com/libphf/phf-stream-pi) for Raspberry Pi CSI/USB, or [`phf-stream-webcam`](https://github.com/libphf/phf-stream-webcam) for PC webcams.*
 
 ---
 
@@ -74,66 +74,70 @@ Real-world benchmarks recorded on an AI-Thinker ESP32-CAM (240 MHz Xtensa LX6):
 
 ### 1. Requirements
 
-- **Arduino IDE**: 1.8.19+ ou 2.x
-- **ESP32 Board Package**: Versão 2.0.x ou mais recente (by Espressif Systems).
-  - URL do Gerenciador de Placas: `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
-- **Biblioteca Adicional**:
-  - `WebSockets` por **Markus Sattler** (instale via *Sketch -> Incluir Biblioteca -> Gerenciar Bibliotecas...* buscando por `WebSockets`).
+- **Arduino IDE**: 1.8.19+ or 2.x
+- **ESP32 Board Package**: Version 2.0.x or newer (by Espressif Systems).
+  - Additional Boards Manager URL: `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
+- **Additional Library**:
+  - `WebSockets` by **Markus Sattler** (install via *Sketch -> Include Library -> Manage Libraries...* by searching for `WebSockets`).
 
-### 2. Configurações da Placa (Menu Ferramentas / Tools)
+### 2. Board Configuration (Tools Menu)
 
-Configure as seguintes opções no Arduino IDE:
+Configure the following options in the Arduino IDE:
 
-| Opção | Valor Recomendado |
+| Option | Recommended Value |
 | :--- | :--- |
-| **Placa (Board)** | `AI Thinker ESP32-CAM` |
+| **Board** | `AI Thinker ESP32-CAM` |
 | **CPU Frequency** | `240MHz (WiFi/BT)` |
 | **Flash Frequency** | `80MHz` |
 | **Flash Mode** | `QIO` |
 | **Partition Scheme** | `Huge APP (3MB No OTA / 1MB SPIFFS)` |
-| **Core Debug Level** | `None` ou `Info` |
-| **PSRAM** | **`Enabled`** (OBRIGATÓRIO) |
+| **Core Debug Level** | `None` or `Info` |
+| **PSRAM** | **`Enabled`** (MANDATORY) |
 
-### 3. Configurar Credenciais Wi-Fi
+> [!IMPORTANT]
+> The **PSRAM: Enabled** setting is mandatory, as large RGB image buffers and PHF compression tables are allocated directly in the 4MB external PSRAM.
 
-No arquivo `phf-stream-esp32.ino`:
+### 3. Configure Wi-Fi Credentials
+
+Open `phf-stream-esp32.ino` and enter your Wi-Fi credentials:
 ```cpp
-const char* ssid     = "SUA_REDE_WIFI";
-const char* password = "SUA_SENHA_WIFI";
+const char* ssid     = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
 ```
 
-### 4. Compilar e Gravar (Upload)
+### 4. Flashing and Uploading
 
-1. Conecte o módulo ESP32-CAM ao computador via adaptador FTDI / USB-TTL:
+1. Connect the ESP32-CAM module to your computer using an FTDI / USB-to-TTL adapter:
    - `ESP32 TX (GPIO 1)` -> `FTDI RX`
    - `ESP32 RX (GPIO 3)` -> `FTDI TX`
    - `ESP32 GND` -> `FTDI GND`
    - `ESP32 5V` -> `FTDI 5V`
-   - **`GPIO 0` conectado ao `GND`** (para entrar no modo de gravação/flash).
-2. Pressione o botão **Reset** no ESP32-CAM.
-3. No Arduino IDE, selecione a porta COM e clique em **Carregar (Upload)**.
-4. Ao término da gravação:
-   - Desconecte o `GPIO 0` do `GND`.
-   - Abra o **Monitor Serial** em **`115200 baud`**.
-   - Pressione o botão **Reset** no ESP32-CAM.
+   - **`GPIO 0` connected to `GND`** (to enter flash programming mode).
+2. Press the **Reset** button on the ESP32-CAM board.
+3. In the Arduino IDE, select the correct COM port and click **Upload**.
+4. Once uploading is complete:
+   - Disconnect `GPIO 0` from `GND`.
+   - Open the **Serial Monitor** at **`115200 baud`**.
+   - Press the **Reset** button on the ESP32-CAM board.
 
 ---
 
-## 🌐 Como Acessar a Interface
+## 🌐 Accessing the Live Dashboard
 
-1. No Monitor Serial, aguarde a conexão Wi-Fi:
+1. Check the Serial Monitor output for the Wi-Fi connection message:
    ```text
    [WIFI] Connected successfully!
    [WIFI] Web Dashboard: http://192.168.15.xx/
    [WIFI] WebSocket Stream: ws://192.168.15.xx:8765
    ```
-2. Abra qualquer navegador moderno (Chrome, Edge, Firefox, Safari) no computador, celular ou tablet na mesma rede e acesse:
+2. Open any modern web browser (Chrome, Edge, Firefox, Safari) on a computer, phone, or tablet connected to the same Wi-Fi network and navigate to:
    ```text
    http://192.168.15.xx/
    ```
+3. The dashboard loads instantly from the ESP32 flash memory and begins streaming live lossless frames decoded in real time with WebAssembly!
 
 ---
 
-## 📄 Licença
+## 📄 License
 
-MIT License. Desenvolvido no projeto Pure High-Fidelity Format (libphf).
+MIT License. Developed as part of the Pure High-Fidelity Format (`libphf`) project.
