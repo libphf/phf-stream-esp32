@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHF Live Stream — ESP32-CAM</title>
+    <link rel="stylesheet" href="style.css?v=1.1.0">
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <span class="logo-icon">📷</span>
+            <div class="brand-title">
+                <h1>PHF Live Stream (ESP32-CAM)</h1>
+                <span class="sub">Lossless Embedded OV2640 Real-Time Streaming</span>
+            </div>
+            <span class="badge wasm-badge">WASM SIMD128</span>
+            <span class="badge lossless-badge">100% Bit-Exact</span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">QVGA 320x240</span>
+        </div>
+        <div class="connection-status" id="connStatus">
+            <span class="dot connecting"></span>
+            <span class="text">Connecting...</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="video-container">
+            <!-- Hardware warning banner -->
+            <div class="alert-banner hidden" id="alertBanner">
+                <span class="icon">⚠️</span>
+                <span class="msg" id="alertMsg">Hardware warning message</span>
+                <button class="btn-close" id="btnCloseAlert">✕</button>
+            </div>
+
+            <div class="viewport">
+                <canvas id="videoCanvas" width="320" height="240"></canvas>
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="spinner"></div>
+                    <p id="loadingText">Waiting for ESP32-CAM PHF stream...</p>
+                </div>
+            </div>
+
+            <!-- Status bar below video -->
+            <div class="status-bar-bottom" id="hudOverlay">
+                <div class="hud-item">
+                    <span class="hud-label">FPS</span>
+                    <span class="hud-val highlight" id="hudFps">0.0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Total Latency</span>
+                    <span class="hud-val green" id="hudLatency">-- ms</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Bitrate</span>
+                    <span class="hud-val" id="hudBitrate">0.0 Mbps</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Decode (WASM)</span>
+                    <span class="hud-val" id="hudDecodeTime">0.0 ms</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Compression</span>
+                    <span class="hud-val green" id="hudRatio">--</span>
+                </div>
+            </div>
+        </div>
+
+        <aside class="sidebar">
+            <div class="card">
+                <div class="card-header-row">
+                    <h3>⚙️ Camera Settings</h3>
+                    <span class="badge" style="background:#262b33; font-size: 0.75rem;">AI-Thinker</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="cameraSelect">Device Model</label>
+                    <select id="cameraSelect" disabled>
+                        <option value="0" selected>ESP32-CAM (OV2640)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="resSelect">Resolution</label>
+                    <select id="resSelect">
+                        <option value="320x240" selected>320x240 (QVGA - Padrão)</option>
+                        <option value="160x120">160x120 (QQVGA - Alta Taxa)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="chkFlip" checked>
+                        <span>Vertical Flip (V-Flip)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="chkMirror" checked>
+                        <span>Horizontal Mirror (H-Mirror)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="chkFlash">
+                        <span>Flash LED (GPIO 4) 💡</span>
+                    </label>
+                </div>
+
+                <button id="btnApplyCamera" class="btn btn-primary" style="margin-top: 12px;">Apply Settings</button>
+            </div>
+
+            <div class="card info-card">
+                <h4>💎 Pure High-Fidelity (PHF)</h4>
+                <p>
+                    Streaming <strong>100% bit-exact lossless</strong> gerado diretamente no microcontrolador ESP32-CAM e decodificado via <strong>WebAssembly SIMD128</strong> direto no seu navegador.
+                </p>
+                <div class="stat-highlight">
+                    <span>Compressor:</span>
+                    <strong class="green">N-Huffman + 2D MED</strong>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script type="module" src="stream-client.js?v=1.1.0"></script>
+</body>
+</html>
